@@ -36,12 +36,19 @@ echo "Script started executing at: $(date)" | tee -a $LOG_FILE
 
 CHECK_ROOT
 
-dnf install mysql-server -y
+dnf install mysql-server -y &>>$LOG_FILE
 
 VALIDATE $? "Installing mysql server"
-systemctl enable mysqld
+systemctl enable mysqld &>>$LOG_FILE
 VALIDATE $? "enable mysqld"
-systemctl start mysqld
+systemctl start mysqld &>>$LOG_FILE
 VALIDATE $? "start mysqld"
-mysql_secure_installation --set-root-pass ExpenseApp@1
-VALIDATE $? "setting root password"
+mysql -h  mysql server.gayathri.online -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE
+if [ $? -ne 0 ]
+then
+    echo "MySql root Password is not setup, setting now." &>>$LOG_FILE
+    mysql_secure_installation --set-root-pass ExpenseApp@1
+    VALIDATE $? "setting root password"
+else
+    echo "Mysql root password is already setup..$y Skipping $N" |tee -a &>>$LOG_FILE
+fi
