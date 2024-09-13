@@ -30,25 +30,26 @@ VALIDATE(){
     fi
 }
 
-
-
 echo "Script started executing at: $(date)" | tee -a $LOG_FILE
 
 CHECK_ROOT
 
 dnf install mysql-server -y &>>$LOG_FILE
+VALIDATE $? "Installing MySQL Server"
 
-VALIDATE $? "Installing mysql server"
 systemctl enable mysqld &>>$LOG_FILE
-VALIDATE $? "enable mysqld"
+VALIDATE $? "Enabled MySQL Server"
+
 systemctl start mysqld &>>$LOG_FILE
-VALIDATE $? "start mysqld"
-mysql -h  mysql server.gayathri.online -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE
+VALIDATE $? "Started MySQL server"
+
+mysql -h mysql.daws81s.online -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE
 if [ $? -ne 0 ]
 then
-    echo "MySql root Password is not setup, setting now." &>>$LOG_FILE
+    echo "MySQL root password is not setup, setting now" &>>$LOG_FILE
     mysql_secure_installation --set-root-pass ExpenseApp@1
-    VALIDATE $? "setting root password"
+    VALIDATE $? "Setting UP root password"
 else
-    echo "Mysql root password is already setup..$y Skipping.. $N" |tee -a &>>$LOG_FILE
+    echo -e "MySQL root password is already setup...$Y SKIPPING $N" | tee -a $LOG_FILE
 fi
+
